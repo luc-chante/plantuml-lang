@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language id="plantuml" _name="PlantUML" version="2.0" _section="Source">
+	<metadata>
+		<property name="mimetypes">text/x-plantmlu;text/x-puml;application/x-plantmlu;application/x-puml</property>
+		<property name="globs">*.puml</property>
+		<property name="line-comment-start">'</property>
+		<property name="block-comment-start">/'</property>
+		<property name="block-comment-end">'/</property>
+	</metadata>
+	<styles>
+		<style id="comment"     _name="Comment"     map-to="def:comment"/>
+		<style id="identifier"  _name="Identifier"  map-to="def:identifier"/>
+		<style id="keyword"     _name="Keyword"     map-to="def:keyword"/>
+		<style id="note"        _name="Note"        map-to="def:doc-comment-element"/>
+		<style id="type"        _name="Type"        map-to="def:type"/>
+	</styles>
+	<definitions>
+		<!-- Comment -->
+		<context id="comment" style-ref="comment" end-at-line-end="true">
+			<start>'</start>
+		</context>
+		<context id="comment-multiline" style-ref="comment">
+			<start>\/'</start>
+			<end>'\/</end>
+			<include>
+				<context ref="def:in-comment"/>
+			</include>
+		</context>
+		
+		<!-- Note -->
+		<context id="note" end-at-line-end="true">
+			<start>^\s*(note\s+(?:left|top|right|bottom)(?:\s+of)?)\s+(\w+)\s*:(.*)</start>
+			<include>
+				<context sub-pattern="1" where="start" style-ref="keyword"/>
+				<context sub-pattern="2" where="start" style-ref="identifier"/>
+				<context sub-pattern="3" where="start" style-ref="note"/>
+			</include>
+		</context>
+		<context id="note-multiline">
+			<start>^\s*(note\s+(?:left|top|right|bottom)(?:\s+of)?)\s+(\w+)\s*(.*)</start>
+			<end>end note</end>
+			<include>
+				<context sub-pattern="1" where="start" style-ref="keyword"/>
+				<context sub-pattern="2" where="start" style-ref="identifier"/>
+				<context sub-pattern="3" where="start" style-ref="note"/>
+			</include>
+		</context>
+		
+		<context id="keywords" style-ref="keyword">
+			<prefix>^\s*</prefix>
+			<keyword>@startuml</keyword>
+			<keyword>@enduml</keyword>
+			<keyword>title</keyword>
+			<keyword>scale</keyword>
+		</context>
+		
+		<!-- Type Declaration -->
+		<define-regex id="identifier-name">("[^"]*"|\w+)</define-regex>
+		<define-regex id="type-prefixes" extended="true">
+			actor|
+			boundary|
+			class|
+			control|
+			database|
+			entity|
+			interface|
+			participant
+		</define-regex>
+		<context id="type-declaration">
+			<start>^\s*(\%{type-prefixes})\s+(\%{identifier-name})</start>
+			<end>\s</end>
+			<include>
+		        <context sub-pattern="1" where="start" style-ref="keyword"/>
+		        <context sub-pattern="2" where="start" style-ref="identifier"/>
+		    </include>
+		</context>
+	
+		<!-- PlantUML declaration -->
+		<context id="plantuml">
+			<include>
+				<context ref="comment"/>
+				<context ref="comment-multiline"/>
+				<context ref="note"/>
+				<context ref="keywords"/>
+				<context ref="type-declaration"/>
+			</include>
+		</context>
+	</definitions>
+</language>
