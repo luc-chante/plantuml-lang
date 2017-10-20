@@ -15,6 +15,18 @@
 		<style id="type"        _name="Type"        map-to="def:type"/>
 	</styles>
 	<definitions>
+		<define-regex id="identifier-name">("[^"]*"|\w+)</define-regex>
+		<define-regex id="type-prefixes" extended="true">
+			actor|
+			boundary|
+			class|
+			control|
+			database|
+			entity|
+			interface|
+			participant
+		</define-regex>
+		
 		<!-- Comment -->
 		<context id="comment" style-ref="comment" end-at-line-end="true">
 			<start>'</start>
@@ -28,21 +40,26 @@
 		</context>
 		
 		<!-- Note -->
-		<context id="note" end-at-line-end="true">
-			<start>^\s*(note\s+(?:left|top|right|bottom)(?:\s+of)?)\s+(\w+)\s*:(.*)</start>
+		<context id="note">
+			<start>(note\s+(left|top|right|bottom))((\s*of)\s+(\%{identifier-name}))?</start>
 			<include>
 				<context sub-pattern="1" where="start" style-ref="keyword"/>
-				<context sub-pattern="2" where="start" style-ref="identifier"/>
-				<context sub-pattern="3" where="start" style-ref="note"/>
-			</include>
-		</context>
-		<context id="note-multiline">
-			<start>^\s*(note\s+(?:left|top|right|bottom)(?:\s+of)?)\s+(\w+)\s*(.*)</start>
-			<end>end note</end>
-			<include>
-				<context sub-pattern="1" where="start" style-ref="keyword"/>
-				<context sub-pattern="2" where="start" style-ref="identifier"/>
-				<context sub-pattern="3" where="start" style-ref="note"/>
+				<context sub-pattern="4" where="start" style-ref="keyword"/>
+				<context sub-pattern="5" where="start" style-ref="identifier"/>
+				
+				<!-- Single-line note -->
+				<context end-parent="true" style-ref="note">
+					<match>\s*:(.*)</match>
+				</context>
+				
+				<!-- Multiline note -->
+				<context end-parent="true" style-ref="note">
+					<start>[^:]</start>
+					<end>end note</end>
+					<include>
+						<context sub-pattern="0" where="end" style-ref="keyword"/>
+					</include>
+				</context>
 			</include>
 		</context>
 		
@@ -55,17 +72,6 @@
 		</context>
 		
 		<!-- Type Declaration -->
-		<define-regex id="identifier-name">("[^"]*"|\w+)</define-regex>
-		<define-regex id="type-prefixes" extended="true">
-			actor|
-			boundary|
-			class|
-			control|
-			database|
-			entity|
-			interface|
-			participant
-		</define-regex>
 		<context id="type-declaration">
 			<start>^\s*(\%{type-prefixes})\s+(\%{identifier-name})</start>
 			<end>\s</end>
