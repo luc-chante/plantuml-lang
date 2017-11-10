@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language id="plantuml" _name="PlantUML" version="2.0" _section="Source">
 	<metadata>
-		<property name="mimetypes">text/x-plantmlu;text/x-puml;application/x-plantmlu;application/x-puml</property>
+		<property name="mimetypes">text/x-plantuml;text/x-puml;application/x-plantuml;application/x-puml</property>
 		<property name="globs">*.puml</property>
 		<property name="line-comment-start">'</property>
 		<property name="block-comment-start">/'</property>
@@ -13,6 +13,7 @@
 		<style id="keyword"     _name="Keyword"     map-to="def:statement"/>
 		<style id="note"        _name="Note"        map-to="def:note"/>
 		<style id="type"        _name="Type"        map-to="def:type"/>
+		<style id="link"        _name="Link"        map-to="def:special-char"/>
 	</styles>
 	<definitions>
 		<define-regex id="identifier-name">("[^"]*"|\w+)</define-regex>
@@ -27,6 +28,16 @@
 			participant
 		</define-regex>
 		<define-regex id="note-position">left|top|right|bottom</define-regex>
+		<define-regex id="link-left-header">&lt;\|?|\(\)|[*o#x}+^]</define-regex>
+		<define-regex id="link-right-header">\|&gt;?|\(\)|[*o#x}+^]</define-regex>
+		<define-regex id="link-inner" extended="true">
+			-((left|up|right|down)?-)?|
+			\.((left|up|right|down)?\.)?
+		</define-regex>
+		<define-regex id="links" extended="true">
+			(\%{link-left-header}|)\%{link-inner}\*?|
+			\*?\%{link-inner}(\%{link-right-header}|)
+		</define-regex>
 		
 		<!-- Comment -->
 		<context id="comment" style-ref="comment" end-at-line-end="true">
@@ -104,6 +115,10 @@
 			</include>
 		</context>
 		
+		<context id="link" style-ref="link">
+			<match>\%{links}</match>
+		</context>
+		
 		<context id="keywords" style-ref="keyword">
 			<prefix>^\s*</prefix>
 			<keyword>@startuml</keyword>
@@ -130,6 +145,7 @@
 				<context ref="note"/>
 				<context ref="keywords"/>
 				<context ref="type-declaration"/>
+				<context ref="link"/>
 			</include>
 		</context>
 	</definitions>
